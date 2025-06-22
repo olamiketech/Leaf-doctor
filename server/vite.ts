@@ -30,7 +30,8 @@ export async function setupVite(app: Express, server: Server) {
   // Dynamically import the Vite config the first time this runs.
   if (!viteConfig) {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    const mod = await import("../vite.config");
+    const configPath = "../vite.config"; // runtime path to avoid esbuild static inclusion
+    const mod = await import(configPath);
     viteConfig = mod.default ?? mod;
   }
   const serverOptions = {
