@@ -4,7 +4,10 @@ import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
-import viteConfig from "../vite.config";
+// Import viteConfig only when setupVite is called (development).
+// This avoids bundling vite.config into the production build where
+// import.meta.dirname causes issues.
+let viteConfig: any;
 import { nanoid } from "nanoid";
 
 // __dirname equivalent in ESM
@@ -24,6 +27,12 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
+  // Dynamically import the Vite config the first time this runs.
+  if (!viteConfig) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    const mod = await import("../vite.config");
+    viteConfig = mod.default ?? mod;
+  }
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
