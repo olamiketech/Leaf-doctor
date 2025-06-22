@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 3px dashed #4CAF50;
+            border-radius: 10px;
+            padding: 50px 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            background: #f0f8f0;
+            border-color: #45a049;
+        }
+        
+        .upload-area.dragover {
+            background: #e8f5e8;
+            border-color: #45a049;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .upload-subtext {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            padding: 40px;
+        }
+        
+        .result-header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: -40px -40px 30px -40px;
+            border-radius: 0;
+        }
+        
+        .prediction-box {
+            background: #f8f9fa;
+            border-left: 5px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .disease-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .confidence {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .explanation {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .explanation h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 5px;
+            border-left: 5px solid #f44336;
+            margin: 20px 0;
+        }
+        
+        .back-btn {
+            background: #666;
+            margin-top: 20px;
+        }
+        
+        .back-btn:hover {
+            background: #555;
+            box-shadow: 0 5px 15px rgba(102, 102, 102, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Plant Disease Detection System</h1>
+            <p>AI-Powered Plant Health Analysis with Expert Agricultural Advice</p>
+        </div>
+        
+        <div id="upload-section" class="upload-section">
+            <h2>Upload Plant Leaf Image</h2>
+            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-subtext">Supports JPG, JPEG, PNG files (Max 16MB)</div>
+            </div>
+            <input type="file" id="file-input" class="file-input" accept=".jpg,.jpeg,.png">
+            <button class="btn" onclick="document.getElementById('file-input').click()">Choose File</button>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <h3>Analyzing your plant image...</h3>
+            <p>This may take a few moments while our AI examines the plant and prepares expert advice.</p>
+        </div>
+        
+        <div id="results" class="results">
+            <div class="result-header">
+                <h2>Analysis Complete</h2>
+            </div>
+            
+            <div class="prediction-box">
+                <div class="disease-name" id="disease-name"></div>
+                <div class="confidence" id="confidence"></div>
+            </div>
+            
+            <img id="result-image" class="result-image" style="display:none;">
+            
+            <div class="explanation">
+                <h3>Expert Agricultural Advice</h3>
+                <div id="explanation-text"></div>
+            </div>
+            
+            <button class="btn back-btn" onclick="resetForm()">Analyze Another Image</button>
+        </div>
+        
+        <div id="error" class="error" style="display:none;">
+            <strong>Error:</strong> <span id="error-message"></span>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.querySelector('.upload-area');
+        const fileInput = document.getElementById('file-input');
+        const uploadSection = document.getElementById('upload-section');
+        const loadingSection = document.getElementById('loading');
+        const resultsSection = document.getElementById('results');
+        const errorSection = document.getElementById('error');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                showError('Please upload a valid image file (JPG, JPEG, or PNG).');
+                return;
+            }
+
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File size must be less than 16MB.');
+                return;
+            }
+
+            uploadImage(file);
+        }
+
+        function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading
+            uploadSection.style.display = 'none';
+            loadingSection.style.display = 'block';
+            errorSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingSection.style.display = 'none';
+                
+                if (data.success) {
+                    showResults(data);
+                } else {
+                    showError(data.error || 'An error occurred while processing the image.');
+                }
+            })
+            .catch(error => {
+                loadingSection.style.display = 'none';
+                showError('Network error. Please check your connection and try again.');
+                console.error('Error:', error);
+            });
+        }
+
+        function showResults(data) {
+            document.getElementById('disease-name').textContent = data.predicted_class;
+            document.getElementById('confidence').textContent = `Confidence: ${data.confidence}`;
+            document.getElementById('explanation-text').textContent = data.explanation;
+            
+            if (data.result_image) {
+                const resultImage = document.getElementById('result-image');
+                resultImage.src = 'data:image/png;base64,' + data.result_image;
+                resultImage.style.display = 'block';
+            }
+            
+            resultsSection.style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            errorSection.style.display = 'block';
+            uploadSection.style.display = 'block';
+        }
+
+        function resetForm() {
+            uploadSection.style.display = 'block';
+            loadingSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+            errorSection.style.display = 'none';
+            fileInput.value = '';
+        }
+    </script>
+</body>
+</html>
