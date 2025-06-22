@@ -11,7 +11,7 @@ let viteConfig: any;
 import { nanoid } from "nanoid";
 
 // __dirname equivalent in ESM
-const __dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const viteLogger = createLogger();
 
