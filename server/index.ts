@@ -7,26 +7,25 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add CSP middleware
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; " +
-    "connect-src 'self' http://127.0.0.1:61253 https://127.0.0.1:61253 https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://api.hcaptcha.com https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com https://js.stripe.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://www.google-analytics.com https://www.recaptcha.net https://www.gstatic.com https://js.stripe.com https://api.stripe.com https://*.stripe.com; " +
-    "style-src 'self' 'unsafe-inline' https://newassets.hcaptcha.com; " +
-    "img-src 'self' data: https:; " +
-    "font-src 'self' data:; " +
-    "frame-src 'self' https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://www.recaptcha.net https://js.stripe.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com;"
-  );
-  next();
-});
+  // Add CSP middleware
+  app.use((req, res, next) => {
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; " +
+      "connect-src 'self' http://127.0.0.1:61253 https://127.0.0.1:61253 https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://api.hcaptcha.com https://www.google-analytics.com https://analytics.google.com https://play.google.com https://www.recaptcha.net https://www.gstatic.com https://*.ingest.sentry.io https://api.segment.io https://csp.withgoogle.com https://js.stripe.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com https://datafa.st https://*.datafa.st; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://www.google-analytics.com https://www.recaptcha.net https://www.gstatic.com https://js.stripe.com https://api.stripe.com https://*.stripe.com https://datafa.st; " +
+      "style-src 'self' 'unsafe-inline' https://newassets.hcaptcha.com; " +
+      "img-src 'self' data: https:; " +
+      "font-src 'self' data:; " +
+      "frame-src 'self' https://newassets.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com https://www.recaptcha.net https://js.stripe.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com;"
+    );
+    next();
+  });
 
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
     capturedJsonResponse = bodyJson;
